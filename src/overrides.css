@@ -1,0 +1,36 @@
+:root{background:#fff}
+.app-shell,.content{background:#fff}
+.report-options{grid-template-columns:repeat(4,minmax(0,1fr))}
+.global-error{margin:14px 28px 0;padding:12px 14px;border:1px solid #e5caca;border-radius:10px;background:#fff8f8;color:#8a2929;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.global-error .secondary-btn{white-space:nowrap;background:#fff;color:#17191d}
+.data-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.nutrition-btn{margin-top:10px;padding:9px 12px;font-size:11px}
+.nutrition-estimate{margin:10px 0 0;padding:10px;border-radius:8px;background:#fff;font-size:12px;line-height:1.5}
+.privacy-note{font-size:11px;color:#777b84}
+.selected-day-panel{padding:18px;margin-bottom:18px}
+.selected-day-panel .section-title{margin-bottom:8px}
+.summary-activities,.summary-meals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.summary-row{min-width:0;padding:10px;border:1px solid #eff0f2;border-radius:9px;display:flex;flex-direction:column;gap:4px;font-size:12px}
+.summary-row strong{font-size:12px}
+.summary-row span,.summary-row small{color:#686d77;line-height:1.5;overflow-wrap:anywhere}
+.summary-meals{margin-top:18px}
+.summary-meals h3{grid-column:1/-1;margin:0;font:700 14px Manrope,sans-serif}
+.wake-content label{flex:1}
+.wake-content input{display:block;margin-top:8px}
+.sign-out-btn{display:inline-flex;align-items:center;gap:6px}
+.auth-content{max-width:560px;margin:0 auto}
+.auth-panel{padding:22px}
+.auth-panel form{display:grid;gap:14px}
+.auth-panel form label{display:grid;gap:7px;font-size:13px;font-weight:600}
+.auth-panel form input{width:100%;padding:11px 12px;border:1px solid #e1e3e7;border-radius:8px;background:#fff;color:#17191d;font:inherit}
+.auth-panel form input:focus{outline:2px solid #b6c5e5;outline-offset:1px}
+.auth-panel .error-text{margin:0 0 12px}
+@media(max-width:600px){
+  .global-error{margin:10px 15px;align-items:flex-start;flex-direction:column}
+  .report-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .data-actions>*{flex:1}
+  .wake-content{align-items:stretch;flex-direction:column}
+  .selected-day-panel{padding:14px}
+  .summary-activities,.summary-meals{grid-template-columns:1fr}
+  .sign-out-btn{flex:1 0 100%;justify-content:center}
+}
