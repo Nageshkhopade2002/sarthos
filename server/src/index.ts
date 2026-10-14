@@ -11,7 +11,7 @@ import { DailyLogModel, ReportModel, type DailyLogRecord, type ReportRecord } fr
 
 const app = express()
 const port = Number(process.env.PORT || 8787)
-const host = process.env.HOST || '127.0.0.1'
+const host = process.env.RENDER === 'true' ? '0.0.0.0' : process.env.HOST || '127.0.0.1'
 const authConfig = readAuthConfig()
 const auth = createAuth(authConfig)
 const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
@@ -57,6 +57,7 @@ const nutritionSchema = z.object({
 }).strict()
 
 app.disable('x-powered-by')
+if (process.env.RENDER === 'true') app.set('trust proxy', 1)
 app.use(cors({
   credentials: true,
   origin(origin, callback) {
@@ -342,10 +343,19 @@ const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     res.status(413).json({ error: 'Request body exceeds the 50 KB limit.' })
     return
   }
-  console.error('API request failed:', error instanceof Error ? error.name : 'unknown error')
+  console.error('API request failed:', safeErrorSummary(error))
   res.status(500).json({ error: 'The request could not be completed. Check the backend and database logs.' })
 }
 app.use(errorHandler)
+
+function safeErrorSummary(error: unknown): string {
+  if (!(error instanceof Error)) return 'UnknownError'
+  const code = typeof error === 'object' && error !== null && 'code' in error
+    && (typeof error.code === 'string' || typeof error.code === 'number')
+    ? ` (${error.code})`
+    : ''
+  return `${error.name}${code}`
+}
 
 function createHash(value: unknown): string {
   return createHashNode(JSON.stringify(value)).digest('hex')
@@ -412,7 +422,11 @@ async function start() {
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be a valid TCP port.')
   if (process.env.MONGODB_URI) await connectMongo()
   else console.error('MongoDB is not configured. Set MONGODB_URI in server/.env.')
-  app.listen(port, host, () => console.log(`Self Upgrade API listening on http://${host}:${port}`))
+  const server = app.listen(port, host, () => console.log(`Self Upgrade API listening on http://${host}:${port}`))
+  server.on('error', error => {
+    console.error('API server failed to bind:', safeErrorSummary(error))
+    process.exitCode = 1
+  })
 }
 
 start().catch(error => {
@@ -428,8 +442,8 @@ async function connectMongo() {
   try {
     await mongoose.connect(process.env.MONGODB_URI!, { serverSelectionTimeoutMS: 5_000 })
     console.log('MongoDB connected.')
-  } catch {
-    console.error('MongoDB connection failed. Check MONGODB_URI and Atlas network access.')
+  } catch (error) {
+    console.error('MongoDB connection failed:', safeErrorSummary(error))
     scheduleMongoReconnect()
   }
 }
